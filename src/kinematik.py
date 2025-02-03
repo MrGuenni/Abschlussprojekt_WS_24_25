@@ -8,7 +8,7 @@ from src.mechanismus import Mechanism, Joint, Link
 
 class Kinematics:
 
-    def _init_(self, mechanism: Mechanism, driving_joint: Joint):
+    def __init__(self, mechanism: Mechanism, driving_joint: Joint):
         self.mechanism = mechanism
         self.driving_joint = driving_joint
 
@@ -66,7 +66,7 @@ class Kinematics:
 
         return self.mechanism.joints
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     mech = Mechanism()
     j1 = mech.add_joint(0, 0, fixed=True)
     j2 = mech.add_joint(2, 0)
