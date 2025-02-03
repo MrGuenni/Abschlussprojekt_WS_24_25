@@ -1,0 +1,42 @@
+{
+    "joints": [
+        {
+            "x": 0,
+            "y": 0,
+            "fixed": true
+        },
+        {
+            "x": 2,
+            "y": 0,
+            "fixed": false
+        },
+        {
+            "x": 2,
+            "y": 2,
+            "fixed": false
+        },
+        {
+            "x": 0,
+            "y": 2,
+            "fixed": true
+        }
+    ],
+    "links": [
+        {
+            "joint1": 0,
+            "joint2": 1
+        },
+        {
+            "joint1": 1,
+            "joint2": 2
+        },
+        {
+            "joint1": 2,
+            "joint2": 3
+        },
+        {
+            "joint1": 3,
+            "joint2": 0
+        }
+    ]
+}
