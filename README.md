@@ -16,3 +16,4 @@ source venv/bin/activate
 Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ````
+Es wurde eine erste streamlit grundstrukur erstellt 
