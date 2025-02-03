@@ -6,7 +6,7 @@ import csv
 from src.kinematik import Kinematics
 from src.mechanismus import Mechanism
 
-def export_kinematics_to_csv(kinematics: Kinematics, filename="kinematik.csv"):
+def export_kinematics_to_csv(kinematics: Kinematics, filename="kinematics.csv"):
     print("CSV-Export START")
     angles = range(0, 361, 10)
 
