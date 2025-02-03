@@ -1,10 +1,10 @@
+import streamlit as st
+import matplotlib.pyplot as plt
 import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import streamlit as st
-import matplotlib.pyplot as plt
 from src.kinematik import Kinematics
 from src.mechanismus import Mechanism
 
@@ -24,14 +24,19 @@ mech.add_link(j4, j1)
 kin = Kinematics(mech, j2)
 
 angle = st.slider("Antriebswinkel", 0, 360, 0)
-positions = kin.calculate_positions(angle)
+
+updated_joints = kin.calculate_positions(angle)
 
 fig, ax = plt.subplots()
-for link in mech.links:
-    ax.plot([link.joint1.x, link.joint2.x], [link.joint1.y, link.joint2.y], 'bo-')
 
-ax.set_xlim(-5, 5)
-ax.set_ylim(-5, 5)
+for link in mech.links:
+    x1, y1 = link.joint1.x, link.joint1.y
+    x2, y2 = link.joint2.x, link.joint2.y
+    ax.plot([x1, x2], [y1, y2], 'bo-')
+
+ax.set_xlim(-3, 5)
+ax.set_ylim(-3, 5)
+ax.set_aspect('equal')
 ax.set_title("Mechanismus-Simulation")
 
 st.pyplot(fig)
