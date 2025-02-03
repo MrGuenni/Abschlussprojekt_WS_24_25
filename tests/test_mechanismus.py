@@ -1,7 +1,9 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from src.mechanismus import Mechanism
+from src.mechanismus import create_strandbeest_leg
 
 #TESTMECHANISMUS
 mech = Mechanism()
@@ -15,3 +17,6 @@ mech.add_link(j1, j3)
 print(mech)
 for link in mech.links:
     print(link)
+
+mech = create_strandbeest_leg()
+print(mech)
