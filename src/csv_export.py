@@ -1,10 +1,14 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import csv
 from src.kinematik import Kinematics
 from src.mechanismus import Mechanism
 
-def export_kinematics_to_csv(kinematics: Kinematics, filename="kinematics.csv"):
-    """Speichert die Kinematik-Daten als CSV-Datei."""
-    angles = range(0, 361, 10)  # Simuliere von 0° bis 360° in 10°-Schritten
+def export_kinematics_to_csv(kinematics: Kinematics, filename="kinematik.csv"):
+    print("CSV-Export START")
+    angles = range(0, 361, 10)
 
     with open(filename, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
