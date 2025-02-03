@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(_file_), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import csv
 from src.kinematik import Kinematics
@@ -23,7 +23,7 @@ def export_kinematics_to_csv(kinematics: Kinematics, filename="kinematics.csv"):
 
     print(f"Kinematik-Daten gespeichert als {filename}")
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     mech = Mechanism()
     j1 = mech.add_joint(0, 0, fixed=True)
     j2 = mech.add_joint(2, 0)
