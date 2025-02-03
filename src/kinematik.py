@@ -1,22 +1,19 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(_file_), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import numpy as np
 from scipy.optimize import fsolve
 from src.mechanismus import Mechanism, Joint, Link
 
 class Kinematics:
-    """Klasse zur Berechnung der Kinematik eines Mechanismus."""
 
     def _init_(self, mechanism: Mechanism, driving_joint: Joint):
         self.mechanism = mechanism
         self.driving_joint = driving_joint
 
     def calculate_positions(self, theta):
-        """Berechnet die Positionen der beweglichen Gelenke für einen gegebenen Drehwinkel theta."""
         
-        # Referenzpunkt des festen Gelenks finden
         fixed_joint = None
         for joint in self.mechanism.joints:
             if joint.fixed:
@@ -26,18 +23,15 @@ class Kinematics:
         if fixed_joint is None:
             raise ValueError("Kein festes Gelenk gefunden!")
         
-        # Berechnung des angetriebenen Gelenks mit Drehmatrix
         cos_theta = np.cos(np.radians(theta))
         sin_theta = np.sin(np.radians(theta))
         
         self.driving_joint.x = fixed_joint.x + (self.driving_joint.x - fixed_joint.x) * cos_theta - (self.driving_joint.y - fixed_joint.y) * sin_theta
         self.driving_joint.y = fixed_joint.y + (self.driving_joint.x - fixed_joint.x) * sin_theta + (self.driving_joint.y - fixed_joint.y) * cos_theta
-        
-        # Gelenkpositionen als Dictionary vorbereiten
+
         joint_positions = {joint: (joint.x, joint.y) for joint in self.mechanism.joints}
 
         def equations(vars, joint_positions, links):
-            """Gleichungssystem für die Kinematik."""
             eqs = []
             index = 0
 
@@ -54,7 +48,6 @@ class Kinematics:
 
             return eqs
 
-        # Startwerte für bewegliche Gelenke sammeln
         initial_guesses = []
         variable_joints = []
         
@@ -63,10 +56,8 @@ class Kinematics:
                 initial_guesses.extend([joint.x, joint.y])
                 variable_joints.append(joint)
         
-        # Optimierung mit fsolve
         result = fsolve(equations, initial_guesses, args=(joint_positions, self.mechanism.links))
 
-        # Aktualisiere die Positionen der beweglichen Gelenke
         index = 0
         for joint in variable_joints:
             joint.x, joint.y = result[index], result[index + 1]
@@ -75,8 +66,7 @@ class Kinematics:
 
         return self.mechanism.joints
 
-# Testlauf mit einem Viergelenkgetriebe
-if _name_ == "_main_":
+if __name__ == "_main_":
     mech = Mechanism()
     j1 = mech.add_joint(0, 0, fixed=True)
     j2 = mech.add_joint(2, 0)
