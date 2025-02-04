@@ -39,19 +39,31 @@ angle = st.slider("Antriebswinkel", 0, 360, 0)
 
 updated_joints = kin.calculate_positions(angle)
 
+trajectory = kin.calculate_trajectory()
+
 fig, ax = plt.subplots()
 
+# Zeichne die Bahnkurven nur für nicht-fixierte Gelenke
+for i, (joint, positions) in enumerate(trajectory.items()):
+    x_vals, y_vals = zip(*positions)
+    ax.plot(x_vals, y_vals, linestyle="dashed", alpha=0.6, label=f"Gelenk {i+1}")
+
+# Zeichne Mechanismus (aktuelle Position)
 for link in mech.links:
     x1, y1 = link.joint1.x, link.joint1.y
     x2, y2 = link.joint2.x, link.joint2.y
     ax.plot([x1, x2], [y1, y2], 'bo-')
 
+# Gelenke markieren
 for joint in mech.joints:
-    ax.plot(joint.x, joint.y, 'bo', markersize=6)
+    color = 'ro' if not joint.fixed else 'go'  # Feste Gelenke grün, bewegliche rot
+    ax.plot(joint.x, joint.y, color, markersize=6)
 
 ax.set_xlim(-5, 7)
 ax.set_ylim(-5, 7)
 ax.set_aspect('equal')
-ax.set_title("Mechanismus-Simulation")
+ax.set_title("Mechanismus-Simulation mit Bahnkurven")
+ax.legend()
 
 st.pyplot(fig)
+
