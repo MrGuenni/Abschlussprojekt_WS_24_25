@@ -61,7 +61,7 @@ class Kinematics:
 
         return self.mechanism.joints
     
-    def calculate_trajectory(self, angle_range=(0, 360, 10)):
+    def calculate_trajectory(self, angle_range=(0, 360, 2)):
         angles = range(angle_range[0], angle_range[1] + 1, angle_range[2])
         trajectory = {joint: [] for joint in self.mechanism.joints}
 
