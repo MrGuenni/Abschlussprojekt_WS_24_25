@@ -63,7 +63,11 @@ class Kinematics:
                 initial_guesses.extend([joint.x, joint.y])
                 variable_joints.append(joint)
 
+        if not initial_guesses:
+            raise ValueError("Initial Guesses für fsolve sind leer!")
+
         result = fsolve(equations, initial_guesses, args=(variable_joints, joint_positions, self.mechanism.links), xtol=1e-6)
+
 
         index = 0
         for joint in variable_joints:
