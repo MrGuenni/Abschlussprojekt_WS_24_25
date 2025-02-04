@@ -76,5 +76,6 @@ def create_strandbeest_leg() -> Mechanism:
     mech.add_link(j2, j5)
     mech.add_link(j5, j6)
     mech.add_link(j6, j3)
+    mech.add_link(j3, j1)
 
     return mech
