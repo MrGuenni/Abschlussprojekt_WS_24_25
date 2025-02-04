@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.kinematik import Kinematics
-from src.mechanismus import Mechanism, create_strandbeest_leg
+from src.mechanismus import Mechanism, Joint, Link, create_strandbeest_leg
 
 def create_default_mechanism():
     mech = Mechanism()
@@ -46,8 +46,11 @@ for link in mech.links:
     x2, y2 = link.joint2.x, link.joint2.y
     ax.plot([x1, x2], [y1, y2], 'bo-')
 
-ax.set_xlim(-3, 6)
-ax.set_ylim(-3, 6)
+for joint in mech.joints:
+    ax.plot(joint.x, joint.y, 'bo', markersize=6)
+
+ax.set_xlim(-5, 7)
+ax.set_ylim(-5, 7)
 ax.set_aspect('equal')
 ax.set_title("Mechanismus-Simulation")
 

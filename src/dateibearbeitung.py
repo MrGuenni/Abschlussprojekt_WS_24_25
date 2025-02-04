@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import json
 from src.mechanismus import Mechanism, Joint, Link
 
-def save_mechanism(mechanism: Mechanism, filename="mechanism.json"):
+def save_mechanism(mechanism: Mechanism, filename="mechanismus.json"):
     data = {
         "joints": [{"x": j.x, "y": j.y, "fixed": j.fixed} for j in mechanism.joints],
         "links": [{"joint1": mechanism.joints.index(l.joint1), "joint2": mechanism.joints.index(l.joint2)} for l in mechanism.links]
@@ -14,7 +14,7 @@ def save_mechanism(mechanism: Mechanism, filename="mechanism.json"):
         json.dump(data, f, indent=4)
     print(f"Mechanismus gespeichert als {filename}")
 
-def load_mechanism(filename="mechanism.json"):
+def load_mechanism(filename="mechanismus.json"):
     #Mechanismus aus JSON Datei laden
     with open(filename, "r") as f:
         data = json.load(f)
