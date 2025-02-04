@@ -79,3 +79,35 @@ def create_strandbeest_leg() -> Mechanism:
     mech.add_link(j3, j1)
 
     return mech
+
+def validate_mechanism(mechanism: Mechanism):
+    """ Prüft, ob der Mechanismus valide ist und simuliert werden kann. """
+    joints = mechanism.joints
+    links = mechanism.links
+
+    # ⿡ Mindestens ein fixiertes Gelenk erforderlich
+    fixed_joints = [j for j in joints if j.fixed]
+    if len(fixed_joints) == 0:
+        raise ValueError("Ungültiger Mechanismus: Es muss mindestens ein fixiertes Gelenk existieren!")
+
+    # ⿢ Jedes Gelenk muss mindestens mit einem Glied verbunden sein
+    for joint in joints:
+        connected_links = [l for l in links if joint in (l.joint1, l.joint2)]
+        if len(connected_links) == 0:
+            raise ValueError(f"Ungültiger Mechanismus: Gelenk {joint} ist nicht mit einem Glied verbunden!")
+
+    # ⿣ Alle Glieder müssen genau zwei Gelenke verbinden
+    for link in links:
+        if not (link.joint1 and link.joint2):
+            raise ValueError(f"Ungültiger Mechanismus: Ein Glied ist nicht korrekt mit zwei Gelenken verbunden!")
+        
+ # ⿤ Anzahl der Gleichungen vs. Variablen prüfen (2 * bewegliche Gelenke == Anzahl Glieder)
+    moving_joints = [j for j in joints if not j.fixed]
+    num_equations = len(links)
+    num_variables = len(moving_joints) * 2  # x & y für jedes bewegliche Gelenk
+
+    if num_equations != num_variables:
+        raise ValueError(f"Ungültiger Mechanismus: {num_equations} Gleichungen, aber {num_variables} Variablen. "
+                         "Bitte Gelenke oder Glieder anpassen.")
+
+    print("✅ Mechanismus ist gültig!")
