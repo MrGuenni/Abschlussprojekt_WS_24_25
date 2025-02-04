@@ -71,6 +71,18 @@ class Kinematics:
             index += 2
 
         return self.mechanism.joints
+    
+    def calculate_trajectory(self, angle_range=(0, 360, 10)):
+        angles = range(angle_range[0], angle_range[1] + 1, angle_range[2])
+        trajectory = {joint: [] for joint in self.mechanism.joints}
+
+        for angle in angles:
+            joints = self.calculate_positions(angle)
+            for joint in joints:
+                trajectory[joint].append((joint.x, joint.y))
+
+        return trajectory
+
 
 if __name__ == "__main__":
     mech = Mechanism()
@@ -86,3 +98,4 @@ if __name__ == "__main__":
 
     kin = Kinematics(mech, j2)
     print(kin.calculate_positions(45))
+    
