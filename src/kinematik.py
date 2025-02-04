@@ -1,7 +1,7 @@
 import sys
 import os
 import numpy as np
-from scipy.optimize import fsolve
+from scipy.optimize import fsolve, least_squares
 from src.mechanismus import Mechanism, Joint, Link
 
 class Kinematics:
