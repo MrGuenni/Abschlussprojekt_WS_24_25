@@ -10,54 +10,49 @@ class Kinematics:
         self.driving_joint = driving_joint
 
     def calculate_positions(self, theta):
+        """ Berechnet die Positionen der Gelenke durch Optimierung """
         fixed_joint = next((joint for joint in self.mechanism.joints if joint.fixed), None)
         if fixed_joint is None:
             raise ValueError("Kein festes Gelenk gefunden!")
 
+        # Antriebsgelenk bewegen (Rotation um das feste Gelenk)
         cos_theta = np.cos(np.radians(theta))
         sin_theta = np.sin(np.radians(theta))
 
-        # Antriebsgelenk bewegen (Rotation um das feste Gelenk)
         self.driving_joint.x = fixed_joint.x + (self.driving_joint.x - fixed_joint.x) * cos_theta - (self.driving_joint.y - fixed_joint.y) * sin_theta
         self.driving_joint.y = fixed_joint.y + (self.driving_joint.x - fixed_joint.x) * sin_theta + (self.driving_joint.y - fixed_joint.y) * cos_theta
 
-        # Feste Gelenke setzen
-        joint_positions = {joint: (joint.x, joint.y) for joint in self.mechanism.joints if joint.fixed}
+        # Gelenke, die optimiert werden sollen
+        variable_joints = [joint for joint in self.mechanism.joints if not joint.fixed]
 
-        # Funktionsgleichungen für fsolve
-        def equations(vars):
-            eqs = []
+        def error_function(vars):
+            """ Fehlerfunktion: Minimiert die Abweichung von den Soll-Längen der Glieder """
             joint_map = {variable_joints[i]: (vars[2 * i], vars[2 * i + 1]) for i in range(len(variable_joints))}
-
+            eqs = []
+            
             for link in self.mechanism.links:
-                x1, y1 = joint_positions.get(link.joint1, joint_map.get(link.joint1, (None, None)))
-                x2, y2 = joint_positions.get(link.joint2, joint_map.get(link.joint2, (None, None)))
+                x1, y1 = link.joint1.x, link.joint1.y
+                x2, y2 = link.joint2.x, link.joint2.y
 
-                if None in (x1, y1, x2, y2):
-                    continue  # Falls Koordinaten fehlen, überspringen
+                if link.joint1 in joint_map:
+                    x1, y1 = joint_map[link.joint1]
+                if link.joint2 in joint_map:
+                    x2, y2 = joint_map[link.joint2]
 
-                eqs.append((x2 - x1) ** 2 + (y2 - y1) ** 2 - link.length ** 2)
-
+                length_error = ((x2 - x1)**2 + (y2 - y1)**2 - link.length**2)
+                eqs.append(length_error)
+            
             return eqs
 
-
-        # Variable Gelenke bestimmen
-        variable_joints = [joint for joint in self.mechanism.joints if not joint.fixed]
+        # Startwerte setzen
         initial_guesses = [coord for joint in variable_joints for coord in (joint.x, joint.y)]
 
-        # Sicherstellen, dass die Anzahl der Gleichungen der Anzahl der Variablen entspricht
-        num_equations = len(self.mechanism.links)
-        num_variables = len(variable_joints) * 2
-
-        if num_variables != num_equations:
-            raise ValueError(f"Fehler: {num_equations} Gleichungen, aber {num_variables} Variablen. Checke Mechanismusdefinition.")
-
-        # Lösen des Gleichungssystems mit fsolve
-        res = fsolve(equations, initial_guesses, xtol=1e-6)
+        # Optimierung starten
+        result = least_squares(error_function, initial_guesses, xtol=1e-6)
 
         # Ergebnisse speichern
         for i, joint in enumerate(variable_joints):
-            joint.x, joint.y = res[2 * i], res[2 * i + 1]
+            joint.x, joint.y = result.x[2 * i], result.x[2 * i + 1]
 
         return self.mechanism.joints
     
