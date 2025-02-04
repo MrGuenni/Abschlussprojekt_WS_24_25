@@ -12,7 +12,7 @@ def create_default_mechanism():
     mech = Mechanism()
     j1 = mech.add_joint(0, 0, fixed=True)
     j2 = mech.add_joint(2, 0)
-    j3 = mech.add_joint(2, 2)
+    j3 = mech.add_joint(2, 2) 
     j4 = mech.add_joint(0, 2, fixed=True)
 
     mech.add_link(j1, j2)
