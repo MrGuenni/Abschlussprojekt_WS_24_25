@@ -110,4 +110,4 @@ def validate_mechanism(mechanism: Mechanism):
         raise ValueError(f"Ungültiger Mechanismus: {num_equations} Gleichungen, aber {num_variables} Variablen. "
                          "Bitte Gelenke oder Glieder anpassen.")
 
-    print("✅ Mechanismus ist gültig!")
+    print("✅ Mechanismus ist gültig!")

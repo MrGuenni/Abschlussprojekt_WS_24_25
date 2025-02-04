@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.kinematik import Kinematics
-from src.mechanismus import Mechanism, Joint, Link, create_strandbeest_leg
+from src.mechanismus import Mechanism, Joint, Link, create_strandbeest_leg, validate_mechanism
 
 def create_default_mechanism():
     mech = Mechanism()
@@ -36,6 +36,14 @@ mech = mechanism_options[selected_mechanism]()
 kin = Kinematics(mech, mech.joints[1]) 
 
 angle = st.slider("Antriebswinkel", 0, 360, 0)
+
+try:
+    validate_mechanism(mech)  # Mechanismus prüfen
+    updated_joints = kin.calculate_positions(angle)
+except ValueError as e:
+    st.error(f"Fehler: {e}")
+    st.stop()
+
 
 updated_joints = kin.calculate_positions(angle)
 
