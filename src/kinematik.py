@@ -1,8 +1,9 @@
 import sys
 import os
 import numpy as np
-from scipy.optimize import fsolve, least_squares
+from scipy.optimize import fsolve, least_squares  # <- HIER HINZUGEFÜGT
 from src.mechanismus import Mechanism, Joint, Link
+
 
 class Kinematics:
     def __init__(self, mechanism: Mechanism, driving_joint: Joint):
