@@ -66,4 +66,3 @@ ax.set_title("Mechanismus-Simulation mit Bahnkurven")
 ax.legend()
 
 st.pyplot(fig)
-
