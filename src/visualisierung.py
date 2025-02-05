@@ -21,9 +21,9 @@ from src.schubkurbel import create_schubkurbel_mechanism, simulate_schubkurbel_g
 def create_default_mechanism():
     mech = Mechanism()
     j1 = mech.add_joint(0, 0, fixed=True)
-    j2 = mech.add_joint(2, 0)
-    j3 = mech.add_joint(2, 2)
-    j4 = mech.add_joint(0, 2, fixed=True)
+    j2 = mech.add_joint(20, 0)
+    j3 = mech.add_joint(20, 20)
+    j4 = mech.add_joint(0, 20, fixed=True)
 
     mech.add_link(j1, j2)
     mech.add_link(j2, j3)
@@ -46,8 +46,8 @@ def animate_mechanism():
             ax.plot([x1, x2], [y1, y2], 'bo-')
         for joint in mech.joints:
             ax.plot(joint.x, joint.y, 'ro' if not joint.fixed else 'go')
-        ax.set_xlim(-5, 7)
-        ax.set_ylim(-5, 7)
+        ax.set_xlim(-50, 100)
+        ax.set_ylim(-50, 100)
         ax.set_aspect('equal')
         ax.set_title(f"Mechanismus-Simulation (Winkel: {angle}°)")
         
@@ -89,7 +89,7 @@ st.title("Kinematik-Simulation")
 st.sidebar.header("Steuerung")
 mechanism_options = {
     "Standard-Mechanismus": create_default_mechanism,
-    "Strandbeest-Bein": create_strandbeest_leg
+    "Strandbeest-Bein": create_strandbeest_leg  # Jetzt mit korrekten Längen
 }
 
 selected_mechanism = st.sidebar.selectbox("Wähle einen Mechanismus", list(mechanism_options.keys()))
@@ -152,8 +152,8 @@ def plot_mechanism_with_labels():
         ax.plot(joint.x, joint.y, 'ro' if not joint.fixed else 'go')
         ax.annotate(f"({joint.x:.1f}, {joint.y:.1f})", xy=(joint.x, joint.y), fontsize=9, color="blue", ha='right', va='top')
     
-    ax.set_xlim(-5, 7)
-    ax.set_ylim(-5, 7)
+    ax.set_xlim(-50, 100)
+    ax.set_ylim(-50, 100)
     ax.set_aspect('equal')
     ax.set_title(f"Mechanismus-Simulation (Winkel: {angle}°)")
     st.pyplot(fig)

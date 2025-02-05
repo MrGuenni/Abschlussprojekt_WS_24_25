@@ -9,7 +9,6 @@ Die Berechnung erfolgt mit einer Optimierungsmethode (`scipy.optimize.least_squa
 ### 1. Projekt klonen
 bash
 git clone https://github.com/MrGuenni/Abschlussprojekt_WS_24_25.git
-cd abschlussprojekt
 
 
 ### 2. Virtuelle Umgebung erstellen & Abhängigkeiten installieren
@@ -50,7 +49,7 @@ streamlit run src/visualisierung.py
 ## 📚 **Projektstruktur**
 Die Projektstruktur entspricht dem Screenshot, den ihr mir gegeben habt. Die wichtigsten Dateien:
 
-ABSSCHLUSSPROJEKT_WS_24_25/
+````ABSSCHLUSSPROJEKT_WS_24_25/
 │── src/
 │   │── csv_export.py
 │   │── dateibearbeitung.py
@@ -70,6 +69,7 @@ ABSSCHLUSSPROJEKT_WS_24_25/
 │── README.md
 │── requirements.txt
 │── testfile.txt
+````
 
 
 ## 📝 **Lizenz**

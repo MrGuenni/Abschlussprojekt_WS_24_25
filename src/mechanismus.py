@@ -61,22 +61,26 @@ class Mechanism:
 
 def create_strandbeest_leg() -> Mechanism:
     mech = Mechanism()
-    
-    j1 = mech.add_joint(0, 0, fixed=True)
-    j2 = mech.add_joint(5, 0)
-    j3 = mech.add_joint(4, 3)
-    j4 = mech.add_joint(1, 3, fixed=True)
-    j5 = mech.add_joint(3, 1.5)
-    j6 = mech.add_joint(2, 2)
 
+    # Gelenke mit Theo-Jansen-Längen setzen
+    j1 = mech.add_joint(0, 0, fixed=True)  # Erster Fixpunkt
+    j2 = mech.add_joint(38.0, 0)  # Beweglich
+    j3 = mech.add_joint(38.0 + 41.5, 0)  # Gelenk weiter rechts
+    j4 = mech.add_joint(38.0 + 41.5 - 39.3, 40.1)  # Gelenk oben
+    j5 = mech.add_joint(55.8, 39.4, fixed=True)  # **Dritter Fixpunkt**
+    j6 = mech.add_joint(36.7, 65.7, fixed=True)  # Bein oben
+    j7 = mech.add_joint(49.0, 50.0)  # Gelenk rechts
+    j8 = mech.add_joint(61.9, 7.8, fixed=True)  # Zweiter Fixpunkt
+
+    # Glieder mit den idealen Längen hinzufügen
     mech.add_link(j1, j2)
     mech.add_link(j2, j3)
     mech.add_link(j3, j4)
-    mech.add_link(j4, j1)
-    mech.add_link(j2, j5)
+    mech.add_link(j4, j5)
     mech.add_link(j5, j6)
-    mech.add_link(j6, j3)
-    mech.add_link(j3, j1)
+    mech.add_link(j6, j7)
+    mech.add_link(j7, j8)
+    mech.add_link(j8, j1)  # Rückverbindung zum Fixpunkt
 
     return mech
 
