@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import sys
 import os
+import io
+import imageio
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -24,6 +26,33 @@ def create_default_mechanism():
     mech.add_link(j4, j1)
 
     return mech
+
+def animate_mechanism():
+    fig, ax = plt.subplots()
+    angles = range(0, 361, 10)
+    frames = []
+    
+    for angle in angles:
+        kin.calculate_positions(angle)
+        ax.clear()
+        for link in mech.links:
+            x1, y1 = link.joint1.x, link.joint1.y
+            x2, y2 = link.joint2.x, link.joint2.y
+            ax.plot([x1, x2], [y1, y2], 'bo-')
+        for joint in mech.joints:
+            ax.plot(joint.x, joint.y, 'ro' if not joint.fixed else 'go')
+        ax.set_xlim(-5, 7)
+        ax.set_ylim(-5, 7)
+        ax.set_aspect('equal')
+        ax.set_title(f"Mechanismus-Simulation (Winkel: {angle}°)")
+        
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        frames.append(imageio.imread(buf))
+    
+    imageio.mimsave("mechanismus.gif", frames, duration=0.1)
+    return "mechanismus.gif"
 
 st.title("Kinematik-Simulation")
 
@@ -138,3 +167,7 @@ if st.sidebar.checkbox("Fehleranalyse aktivieren"):
     ax.set_title(f"Längen-Fehler für {selected_mechanism}")
     st.pyplot(fig)
 
+if st.sidebar.button("Animation erstellen"):
+    gif_path = animate_mechanism()
+    with open(gif_path, "rb") as f:
+        st.download_button("Download Animation (GIF)", f, file_name="mechanismus.gif", mime="image/gif")
