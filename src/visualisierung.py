@@ -93,9 +93,10 @@ mechanism_options = {
 }
 
 selected_mechanism = st.sidebar.selectbox("Wähle einen Mechanismus", list(mechanism_options.keys()))
-if "mech" not in st.session_state:
+if "selected_mechanism" not in st.session_state or st.session_state["selected_mechanism"] != selected_mechanism:
     st.session_state["mech"] = mechanism_options[selected_mechanism]()
     st.session_state["kin"] = Kinematics(st.session_state["mech"], st.session_state["mech"].joints[1])
+    st.session_state["selected_mechanism"] = selected_mechanism
 
 mech = st.session_state["mech"]
 kin = st.session_state["kin"]
