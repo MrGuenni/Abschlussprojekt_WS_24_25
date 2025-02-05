@@ -1,3 +1,5 @@
+import json
+
 class Joint:
     def __init__(self, x: float, y: float, fixed: bool = False):
         self.x = x
@@ -6,7 +8,6 @@ class Joint:
 
     def __repr__(self):
         return f"Joint(x={self.x}, y={self.y}, fixed={self.fixed})"
-
 
 class Link:
     def __init__(self, joint1: Joint, joint2: Joint):
@@ -19,7 +20,6 @@ class Link:
 
     def __repr__(self):
         return f"Link({self.joint1} <-> {self.joint2}, Length={self.length:.2f})"
-
 
 class Mechanism:
     def __init__(self):
@@ -35,9 +35,29 @@ class Mechanism:
         link = Link(joint1, joint2)
         self.links.append(link)
 
+    def save_to_file(self, filename="mechanismus.json"):
+        data = {
+            "joints": [{"x": j.x, "y": j.y, "fixed": j.fixed} for j in self.joints],
+            "links": [{"joint1": self.joints.index(l.joint1), "joint2": self.joints.index(l.joint2)} for l in self.links]
+        }
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=4)
+
+    @staticmethod
+    def load_from_file(filename="mechanismus.json"):
+        with open(filename, "r") as f:
+            data = json.load(f)
+
+        mechanism = Mechanism()
+        joints = [mechanism.add_joint(j["x"], j["y"], j["fixed"]) for j in data["joints"]]
+
+        for l in data["links"]:
+            mechanism.add_link(joints[l["joint1"]], joints[l["joint2"]])
+
+        return mechanism
+
     def __repr__(self):
         return f"Mechanism(Joints={len(self.joints)}, Links={len(self.links)})"
-
 
 def create_strandbeest_leg() -> Mechanism:
     mech = Mechanism()
@@ -56,5 +76,38 @@ def create_strandbeest_leg() -> Mechanism:
     mech.add_link(j2, j5)
     mech.add_link(j5, j6)
     mech.add_link(j6, j3)
+    mech.add_link(j3, j1)
 
     return mech
+
+def validate_mechanism(mechanism: Mechanism):
+    """ Prüft, ob der Mechanismus valide ist und simuliert werden kann. """
+    joints = mechanism.joints
+    links = mechanism.links
+
+    # ⿡ Mindestens ein fixiertes Gelenk erforderlich
+    fixed_joints = [j for j in joints if j.fixed]
+    if len(fixed_joints) == 0:
+        raise ValueError("Ungültiger Mechanismus: Es muss mindestens ein fixiertes Gelenk existieren!")
+
+    # ⿢ Jedes Gelenk muss mindestens mit einem Glied verbunden sein
+    for joint in joints:
+        connected_links = [l for l in links if joint in (l.joint1, l.joint2)]
+        if len(connected_links) == 0:
+            raise ValueError(f"Ungültiger Mechanismus: Gelenk {joint} ist nicht mit einem Glied verbunden!")
+
+    # ⿣ Alle Glieder müssen genau zwei Gelenke verbinden
+    for link in links:
+        if not (link.joint1 and link.joint2):
+            raise ValueError(f"Ungültiger Mechanismus: Ein Glied ist nicht korrekt mit zwei Gelenken verbunden!")
+        
+ # ⿤ Anzahl der Gleichungen vs. Variablen prüfen (2 * bewegliche Gelenke == Anzahl Glieder)
+    moving_joints = [j for j in joints if not j.fixed]
+    num_equations = len(links)
+    num_variables = len(moving_joints) * 2  # x & y für jedes bewegliche Gelenk
+
+    if num_equations != num_variables:
+        raise ValueError(f"Ungültiger Mechanismus: {num_equations} Gleichungen, aber {num_variables} Variablen. "
+                         "Bitte Gelenke oder Glieder anpassen.")
+
+    print("✅ Mechanismus ist gültig!")

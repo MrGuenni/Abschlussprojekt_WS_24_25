@@ -5,11 +5,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import streamlit as st
 from src.mechanismus import Mechanism
 
-# Instanz erstellt
 mech = Mechanism()
 st.title("Mechanismus-Erstellung")
 
-# Gelenke
 st.sidebar.header("Gelenke hinzufügen")
 x = st.sidebar.number_input("X-Koordinate", value=0.0)
 y = st.sidebar.number_input("Y-Koordinate", value=0.0)
@@ -19,7 +17,6 @@ if st.sidebar.button("Gelenk hinzufügen"):
     joint = mech.add_joint(x, y, fixed)
     st.sidebar.success(f"Gelenk {joint} hinzugefügt!")
 
-# Glieder
 st.sidebar.header("Glieder hinzufügen")
 if len(mech.joints) >= 2:
     joint_options = {f"Joint {i}": j for i, j in enumerate(mech.joints)}
@@ -33,9 +30,9 @@ if len(mech.joints) >= 2:
         st.sidebar.success(f"Glied zwischen {j1} und {j2} erstellt!")
 
 st.write("### Aktuelle Gelenke:")
-for joint in mech.joints:
-    st.write(joint)
+for i, joint in enumerate(mech.joints):
+    st.write(f"Gelenk {i+1}: x={joint.x}, y={joint.y}, {'fixiert' if joint.fixed else 'beweglich'}")
 
 st.write("### Aktuelle Glieder:")
-for link in mech.links:
-    st.write(link)
+for i, link in enumerate(mech.links):
+    st.write(f"Glied {i+1}: {link.joint1} ↔ {link.joint2}, Länge: {link.length:.2f}")
