@@ -11,7 +11,7 @@ class Kinematics:
         self.driving_joint = driving_joint
 
     def calculate_positions(self, theta):
-        """ Berechnet die Positionen der Gelenke durch Optimierung """
+        """ Berechnet die Positionen der Gelenke durch numerische Optimierung """
         fixed_joint = next((joint for joint in self.mechanism.joints if joint.fixed), None)
         if fixed_joint is None:
             raise ValueError("Kein festes Gelenk gefunden!")
@@ -19,7 +19,7 @@ class Kinematics:
         # Antriebsgelenk bewegen (Rotation um das feste Gelenk)
         cos_theta = np.cos(np.radians(theta))
         sin_theta = np.sin(np.radians(theta))
-
+        
         self.driving_joint.x = fixed_joint.x + (self.driving_joint.x - fixed_joint.x) * cos_theta - (self.driving_joint.y - fixed_joint.y) * sin_theta
         self.driving_joint.y = fixed_joint.y + (self.driving_joint.x - fixed_joint.x) * sin_theta + (self.driving_joint.y - fixed_joint.y) * cos_theta
 
@@ -30,7 +30,7 @@ class Kinematics:
             """ Fehlerfunktion: Minimiert die Abweichung von den Soll-Längen der Glieder """
             joint_map = {variable_joints[i]: (vars[2 * i], vars[2 * i + 1]) for i in range(len(variable_joints))}
             eqs = []
-            
+
             for link in self.mechanism.links:
                 x1, y1 = link.joint1.x, link.joint1.y
                 x2, y2 = link.joint2.x, link.joint2.y
