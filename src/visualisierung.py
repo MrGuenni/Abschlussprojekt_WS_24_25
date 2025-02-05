@@ -1,5 +1,6 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
 import sys
 import os
@@ -25,29 +26,52 @@ def create_default_mechanism():
 
 st.title("Kinematik-Simulation")
 
+st.sidebar.header("Steuerung")
 mechanism_options = {
     "Standard-Mechanismus": create_default_mechanism,
     "Strandbeest-Bein": create_strandbeest_leg
 }
 
-selected_mechanism = st.selectbox("Wähle einen Mechanismus", list(mechanism_options.keys()))
-
+selected_mechanism = st.sidebar.selectbox("Wähle einen Mechanismus", list(mechanism_options.keys()))
 mech = mechanism_options[selected_mechanism]()
-
 kin = Kinematics(mech, mech.joints[1])
+angle = st.sidebar.slider("Antriebswinkel", 0, 360, 0)
 
-angle = st.slider("Antriebswinkel", 0, 360, 0)
+st.sidebar.header("Gelenke hinzufügen")
+x = st.sidebar.number_input("X-Koordinate", value=0.0)
+y = st.sidebar.number_input("Y-Koordinate", value=0.0)
+fixed = st.sidebar.checkbox("Fixiertes Gelenk")
 
+if st.sidebar.button("Gelenk hinzufügen"):
+    joint = mech.add_joint(x, y, fixed)
+    st.sidebar.success(f"Gelenk {joint} hinzugefügt!")
+
+st.sidebar.header("Glieder hinzufügen")
+if len(mech.joints) >= 2:
+    joint_options = {f"Joint {i}": j for i, j in enumerate(mech.joints)}
+    joint1 = st.sidebar.selectbox("Erstes Gelenk", list(joint_options.keys()))
+    joint2 = st.sidebar.selectbox("Zweites Gelenk", list(joint_options.keys()))
+
+    if st.sidebar.button("Glied hinzufügen"):
+        if joint1 != joint2:
+            j1 = joint_options[joint1]
+            j2 = joint_options[joint2]
+            mech.add_link(j1, j2)
+            st.sidebar.success(f"Glied zwischen {j1} und {j2} erstellt!")
+        else:
+            st.sidebar.error("Ein Gelenk kann nicht mit sich selbst verbunden werden!")
+
+# Mechanismus validieren
 try:
     validate_mechanism(mech)
-    updated_joints = kin.calculate_positions(angle)
 except ValueError as e:
-    st.error(f"Fehler: {e}")
+    st.error(f"Mechanismus ungültig: {e}")
     st.stop()
 
 updated_joints = kin.calculate_positions(angle)
 trajectory = kin.calculate_trajectory()
 
+# Mechanismus zeichnen
 fig, ax = plt.subplots()
 
 for i, (joint, positions) in enumerate(trajectory.items()):
@@ -71,16 +95,33 @@ ax.set_title(f"Mechanismus-Simulation (Winkel: {angle}°)")
 ax.legend()
 st.pyplot(fig)
 
-angles = np.arange(0, 361, 10)
-errors = []
-for theta in angles:
-    kin.calculate_positions(theta)
-    error = sum(abs(((link.joint2.x - link.joint1.x)**2 + (link.joint2.y - link.joint1.y)**2)**0.5 - link.length) for link in mech.links)
-    errors.append(error)
+# Stückliste (BOM) erstellen
+st.subheader("Stückliste:")
 
-fig2, ax2 = plt.subplots()
-ax2.plot(angles, errors, marker='o')
-ax2.set_xlabel("Winkel (°)")
-ax2.set_ylabel("Längen-Fehler")
-ax2.set_title("Längen-Fehler über den Drehwinkel")
-st.pyplot(fig2)
+# Gelenk-Liste erstellen
+joint_data = []
+for i, joint in enumerate(mech.joints):
+    joint_data.append({
+        "ID": f"Gelenk {i+1}",
+        "X": joint.x,
+        "Y": joint.y,
+        "Fixiert": "Ja" if joint.fixed else "Nein"
+    })
+
+joint_df = pd.DataFrame(joint_data)
+st.write("### Gelenke")
+st.dataframe(joint_df)
+
+# Glieder-Liste erstellen
+link_data = []
+for i, link in enumerate(mech.links):
+    link_data.append({
+        "ID": f"Glied {i+1}",
+        "Von": f"Gelenk {mech.joints.index(link.joint1) + 1}",
+        "Nach": f"Gelenk {mech.joints.index(link.joint2) + 1}",
+        "Länge": round(link.length, 2)
+    })
+
+link_df = pd.DataFrame(link_data)
+st.write("### Glieder")
+st.dataframe(link_df)
