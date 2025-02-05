@@ -128,29 +128,27 @@ except ValueError as e:
 updated_joints = kin.calculate_positions(angle)
 trajectory = kin.calculate_trajectory()
 
-# Mechanismus zeichnen
-fig, ax = plt.subplots()
+# Mechanismus zeichnen mit Overlay-Informationen
+def plot_mechanism_with_labels():
+    fig, ax = plt.subplots()
+    
+    for link in mech.links:
+        x1, y1 = link.joint1.x, link.joint1.y
+        x2, y2 = link.joint2.x, link.joint2.y
+        ax.plot([x1, x2], [y1, y2], 'bo-')
+        ax.annotate(f"{link.length:.2f}", xy=((x1 + x2) / 2, (y1 + y2) / 2), fontsize=9, color="red", ha='left', va='bottom')
+    
+    for joint in mech.joints:
+        ax.plot(joint.x, joint.y, 'ro' if not joint.fixed else 'go')
+        ax.annotate(f"({joint.x:.1f}, {joint.y:.1f})", xy=(joint.x, joint.y), fontsize=9, color="blue", ha='right', va='top')
+    
+    ax.set_xlim(-5, 7)
+    ax.set_ylim(-5, 7)
+    ax.set_aspect('equal')
+    ax.set_title(f"Mechanismus-Simulation (Winkel: {angle}°)")
+    st.pyplot(fig)
 
-for i, (joint, positions) in enumerate(trajectory.items()):
-    x_vals, y_vals = zip(*positions)
-    ax.plot(x_vals, y_vals, linestyle="dashed", alpha=0.6, label=f"Gelenk {i+1}")
-
-for link in mech.links:
-    x1, y1 = link.joint1.x, link.joint1.y
-    x2, y2 = link.joint2.x, link.joint2.y
-    ax.plot([x1, x2], [y1, y2], 'bo-')
-    ax.text((x1 + x2) / 2, (y1 + y2) / 2, f"{link.length:.2f}", fontsize=8, color="red")
-
-for joint in mech.joints:
-    ax.plot(joint.x, joint.y, 'ro' if not joint.fixed else 'go')
-    ax.text(joint.x, joint.y, f"({joint.x:.1f}, {joint.y:.1f})", fontsize=8, color="blue")
-
-ax.set_xlim(-5, 7)
-ax.set_ylim(-5, 7)
-ax.set_aspect('equal')
-ax.set_title(f"Mechanismus-Simulation (Winkel: {angle}°)")
-ax.legend()
-st.pyplot(fig)
+plot_mechanism_with_labels()
 
 # Stückliste (BOM) erstellen
 st.subheader("Stückliste:")
