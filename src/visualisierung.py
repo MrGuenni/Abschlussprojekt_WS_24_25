@@ -91,8 +91,12 @@ mechanism_options = {
 }
 
 selected_mechanism = st.sidebar.selectbox("Wähle einen Mechanismus", list(mechanism_options.keys()))
-mech = mechanism_options[selected_mechanism]()
-kin = Kinematics(mech, mech.joints[1])
+if "mech" not in st.session_state:
+    st.session_state["mech"] = mechanism_options[selected_mechanism]()
+    st.session_state["kin"] = Kinematics(st.session_state["mech"], st.session_state["mech"].joints[1])
+
+mech = st.session_state["mech"]
+kin = st.session_state["kin"]
 angle = st.sidebar.slider("Antriebswinkel", 0, 360, 0)
 
 st.sidebar.header("Gelenke hinzufügen")
@@ -133,6 +137,8 @@ trajectory = kin.calculate_trajectory()
 def plot_mechanism_with_labels():
     fig, ax = plt.subplots()
     
+    mech = st.session_state["mech"]  
+    
     for link in mech.links:
         x1, y1 = link.joint1.x, link.joint1.y
         x2, y2 = link.joint2.x, link.joint2.y
@@ -160,36 +166,39 @@ def save_mechanism(mech, filename="mechanismus.json"):
         json.dump(data, f, indent=4)
     st.sidebar.success("Mechanismus gespeichert!")
 
-if st.sidebar.button("Mechanismus speichern"):
-    save_mechanism(mech)
-
-# Funktion zum Laden des Mechanismus aus JSON
 def load_mechanism(filename="mechanismus.json"):
     try:
         with open(filename, "r") as f:
             data = json.load(f)
-        
+
         mech = Mechanism()
         joints = [mech.add_joint(j["x"], j["y"], fixed=j["fixed"]) for j in data["joints"]]
-        for link in data["links"]:
-            mech.add_link(joints[link["joint1"]], joints[link["joint2"]])
-        
-        st.sidebar.success("Mechanismus geladen!")
-        return mech
-    except FileNotFoundError:
-        st.sidebar.error("Keine gespeicherte Mechanismus-Datei gefunden.")
-        return create_default_mechanism()
-    
-if st.sidebar.button("Mechanismus laden"):
-    st.session_state["mech"] = load_mechanism()
-    st.session_state["kin"] = Kinematics(st.session_state["mech"], st.session_state["mech"].joints[1])
-    
-    # Werte in Sidebar zurücksetzen
-    st.sidebar.write("Mechanismus geladen! Werte aktualisieren...")
-    
-    # Erneutes Rendern erzwingen
-    st.rerun()
 
+        for link in data["links"]:
+            if 0 <= link["joint1"] < len(joints) and 0 <= link["joint2"] < len(joints):
+                mech.add_link(joints[link["joint1"]], joints[link["joint2"]])
+            else:
+                st.sidebar.error(f"❌ Ungültiger Gelenkindex in JSON-Datei: {link}")
+
+        st.sidebar.success("✅ Mechanismus geladen!")
+
+        # 🎯 Mechanismus und Kinematik direkt in `st.session_state` speichern
+        st.session_state["mech"] = mech
+        st.session_state["kin"] = Kinematics(mech, mech.joints[1])
+
+        # 🎯 Mechanismus mit den neuen Daten zeichnen
+        plot_mechanism_with_labels()
+        return mech
+
+    except FileNotFoundError:
+        st.sidebar.error("❌ Keine gespeicherte Mechanismus-Datei gefunden.")
+
+if st.sidebar.button("Mechanismus speichern"):
+    save_mechanism(mech)
+
+if st.sidebar.button("Mechanismus laden"):
+    load_mechanism()
+    
 # Stückliste (BOM) erstellen
 st.subheader("Stückliste:")
 
