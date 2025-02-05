@@ -7,6 +7,7 @@ import os
 import io
 import imageio
 import matplotlib.animation as animation
+import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -149,6 +150,45 @@ def plot_mechanism_with_labels():
     st.pyplot(fig)
 
 plot_mechanism_with_labels()
+
+def save_mechanism(mech, filename="mechanismus.json"):
+    data = {
+        "joints": [{"x": j.x, "y": j.y, "fixed": j.fixed} for j in mech.joints],
+        "links": [{"joint1": mech.joints.index(l.joint1), "joint2": mech.joints.index(l.joint2)} for l in mech.links]
+    }
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+    st.sidebar.success("Mechanismus gespeichert!")
+
+if st.sidebar.button("Mechanismus speichern"):
+    save_mechanism(mech)
+
+# Funktion zum Laden des Mechanismus aus JSON
+def load_mechanism(filename="mechanismus.json"):
+    try:
+        with open(filename, "r") as f:
+            data = json.load(f)
+        
+        mech = Mechanism()
+        joints = [mech.add_joint(j["x"], j["y"], fixed=j["fixed"]) for j in data["joints"]]
+        for link in data["links"]:
+            mech.add_link(joints[link["joint1"]], joints[link["joint2"]])
+        
+        st.sidebar.success("Mechanismus geladen!")
+        return mech
+    except FileNotFoundError:
+        st.sidebar.error("Keine gespeicherte Mechanismus-Datei gefunden.")
+        return create_default_mechanism()
+    
+if st.sidebar.button("Mechanismus laden"):
+    st.session_state["mech"] = load_mechanism()
+    st.session_state["kin"] = Kinematics(st.session_state["mech"], st.session_state["mech"].joints[1])
+    
+    # Werte in Sidebar zurücksetzen
+    st.sidebar.write("Mechanismus geladen! Werte aktualisieren...")
+    
+    # Erneutes Rendern erzwingen
+    st.rerun()
 
 # Stückliste (BOM) erstellen
 st.subheader("Stückliste:")
