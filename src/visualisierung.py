@@ -15,6 +15,8 @@ from src.kinematik import Kinematics
 from src.mechanismus import Mechanism, Joint, Link, create_strandbeest_leg, validate_mechanism
 from src.fehleranalyse import compute_errors  # Fehleranalyse-Funktion importieren
 from matplotlib.animation import FFMpegWriter
+from src.schubkurbel import create_schubkurbel_mechanism, simulate_schubkurbel_gif
+
 
 def create_default_mechanism():
     mech = Mechanism()
@@ -250,3 +252,11 @@ if st.sidebar.button("MP4 erstellen"):
     mp4_path = animate_mechanism_mp4()
     with open(mp4_path, "rb") as f:
         st.download_button("Download Animation (MP4)", f, file_name="mechanismus.mp4", mime="video/mp4")
+
+if st.sidebar.button("Schubkurbel-Simulation starten", key="schubkurbel_simulation_viz"):
+    gif_path = simulate_schubkurbel_gif()
+    st.image(gif_path, caption="Schubkurbel-Simulation", use_container_width=True)
+
+    with open(gif_path, "rb") as f:
+        st.download_button("Download GIF", f, file_name="schubkurbel_simulation.gif", mime="image/gif")
+
