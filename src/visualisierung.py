@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.kinematik import Kinematics
 from src.mechanismus import Mechanism, Joint, Link, create_strandbeest_leg, validate_mechanism
+from src.fehleranalyse import compute_errors  # Fehleranalyse-Funktion importieren
 
 def create_default_mechanism():
     mech = Mechanism()
@@ -125,3 +126,15 @@ for i, link in enumerate(mech.links):
 link_df = pd.DataFrame(link_data)
 st.write("### Glieder")
 st.dataframe(link_df)
+
+# Fehleranalyse-Kontrolle
+if st.sidebar.checkbox("Fehleranalyse aktivieren"):
+    angles, errors = compute_errors(kin, (0, 360, 10))
+    
+    fig, ax = plt.subplots()
+    ax.plot(angles, errors, marker='o')
+    ax.set_xlabel("Winkel (°)")
+    ax.set_ylabel("Längen-Fehler")
+    ax.set_title(f"Längen-Fehler für {selected_mechanism}")
+    st.pyplot(fig)
+
