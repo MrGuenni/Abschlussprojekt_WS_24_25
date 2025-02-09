@@ -6,7 +6,11 @@ import sys
 import os
 import io
 import imageio
+
 import matplotlib.animation as animation
+#animation.writers['ffmpeg']._exec_command = r"D:/Softwaredesign/Abschlussprojekt/Abschlussprojekt_WS_24_25/venv/Lib/site-packages/ffmpeg/ffmpeg.exe"
+import shutil
+
 import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -60,12 +64,15 @@ def animate_mechanism():
     return "mechanismus.gif"
 
 def animate_mechanism_mp4():
+    if shutil.which("ffmpeg") is None:
+        raise FileNotFoundError("FFmpeg wurde nicht gefunden!")
+    
     fig, ax = plt.subplots()
     angles = range(0, 361, 10)
-    
-    writer = FFMpegWriter(fps=10)
+
+    writer = animation.FFMpegWriter(fps=10)
     video_path = "mechanismus.mp4"
-    
+
     with writer.saving(fig, video_path, dpi=100):
         for angle in angles:
             kin.calculate_positions(angle)
@@ -81,7 +88,7 @@ def animate_mechanism_mp4():
             ax.set_aspect('equal')
             ax.set_title(f"Mechanismus-Simulation (Winkel: {angle}°)")
             writer.grab_frame()
-    
+
     return video_path
 
 st.title("Kinematik-Simulation")
