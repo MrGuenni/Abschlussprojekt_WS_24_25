@@ -9,15 +9,14 @@ from src.mechanismus import Mechanism
 def create_schubkurbel_mechanism():
     mech = Mechanism()
 
-    # Gelenke definieren
-    j1 = mech.add_joint(0, 0, fixed=True)  # Fixiertes Drehgelenk (Kurbelachse)
-    j2 = mech.add_joint(3, 0)  # Kurbelende (drehbar)
-    j3 = mech.add_joint(6, 0)  # Verbindung zur Schubstange (bewegt sich nur horizontal)
-    j4 = mech.add_joint(9, 0, fixed=True)  # Fixiertes Ende der Schubstange
+    j1 = mech.add_joint(0, 0, fixed=True)
+    j2 = mech.add_joint(3, 0)
+    j3 = mech.add_joint(6, 0)
+    j4 = mech.add_joint(9, 0, fixed=True)
 
-    mech.add_link(j1, j2)  # Kurbel
-    mech.add_link(j2, j3)  # Verbindung zur Schubstange
-    mech.add_link(j3, j4)  # Schubstange
+    mech.add_link(j1, j2)
+    mech.add_link(j2, j3)
+    mech.add_link(j3, j4)
 
     return mech
 
@@ -34,13 +33,11 @@ def simulate_schubkurbel_gif():
     for theta in angles:
         j1, j2, j3, j4 = mech.joints
 
-        # Drehung der Kurbel
         j2.x = j1.x + 3 * np.cos(np.radians(theta))
         j2.y = j1.y + 3 * np.sin(np.radians(theta))
         
-        # Berechnung der Position der Schubstange (nur horizontale Bewegung)
-        j3.x = j2.x + np.sqrt(max(9 - j2.y**2, 0))  # Pythagoras für die horizontale Bewegung
-        j3.y = 0  # Die Schubstange bewegt sich nur auf der x-Achse
+        j3.x = j2.x + np.sqrt(max(9 - j2.y**2, 0))
+        j3.y = 0
 
         ax.clear()
         ax.set_xlim(-2, 10)

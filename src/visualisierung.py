@@ -13,7 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.kinematik import Kinematics
 from src.mechanismus import Mechanism, Joint, Link, create_strandbeest_leg, validate_mechanism
-from src.fehleranalyse import compute_errors  # Fehleranalyse-Funktion importieren
+from src.fehleranalyse import compute_errors
 from matplotlib.animation import FFMpegWriter
 from src.schubkurbel import create_schubkurbel_mechanism, simulate_schubkurbel_gif
 
@@ -89,7 +89,7 @@ st.title("Kinematik-Simulation")
 st.sidebar.header("Steuerung")
 mechanism_options = {
     "Standard-Mechanismus": create_default_mechanism,
-    "Strandbeest-Bein": create_strandbeest_leg  # Jetzt mit korrekten Längen
+    "Strandbeest-Bein": create_strandbeest_leg
 }
 
 selected_mechanism = st.sidebar.selectbox("Wähle einen Mechanismus", list(mechanism_options.keys()))
@@ -126,7 +126,6 @@ if len(mech.joints) >= 2:
         else:
             st.sidebar.error("Ein Gelenk kann nicht mit sich selbst verbunden werden!")
 
-# Mechanismus validieren
 try:
     validate_mechanism(mech)
 except ValueError as e:
@@ -136,7 +135,6 @@ except ValueError as e:
 updated_joints = kin.calculate_positions(angle)
 trajectory = kin.calculate_trajectory()
 
-# Mechanismus zeichnen mit Overlay-Informationen
 def plot_mechanism_with_labels():
     fig, ax = plt.subplots()
     
@@ -181,20 +179,18 @@ def load_mechanism(filename="mechanismus.json"):
             if 0 <= link["joint1"] < len(joints) and 0 <= link["joint2"] < len(joints):
                 mech.add_link(joints[link["joint1"]], joints[link["joint2"]])
             else:
-                st.sidebar.error(f"❌ Ungültiger Gelenkindex in JSON-Datei: {link}")
+                st.sidebar.error(f"Ungültiger Gelenkindex in JSON-Datei: {link}")
 
-        st.sidebar.success("✅ Mechanismus geladen!")
+        st.sidebar.success("Mechanismus geladen!")
 
-        # 🎯 Mechanismus und Kinematik direkt in `st.session_state` speichern
         st.session_state["mech"] = mech
         st.session_state["kin"] = Kinematics(mech, mech.joints[1])
 
-        # 🎯 Mechanismus mit den neuen Daten zeichnen
         plot_mechanism_with_labels()
         return mech
 
     except FileNotFoundError:
-        st.sidebar.error("❌ Keine gespeicherte Mechanismus-Datei gefunden.")
+        st.sidebar.error("Keine gespeicherte Mechanismus-Datei gefunden.")
 
 if st.sidebar.button("Mechanismus speichern"):
     save_mechanism(mech)
@@ -202,10 +198,8 @@ if st.sidebar.button("Mechanismus speichern"):
 if st.sidebar.button("Mechanismus laden"):
     load_mechanism()
     
-# Stückliste (BOM) erstellen
 st.subheader("Stückliste:")
 
-# Gelenk-Liste erstellen
 joint_data = []
 for i, joint in enumerate(mech.joints):
     joint_data.append({
@@ -219,7 +213,6 @@ joint_df = pd.DataFrame(joint_data)
 st.write("### Gelenke")
 st.dataframe(joint_df)
 
-# Glieder-Liste erstellen
 link_data = []
 for i, link in enumerate(mech.links):
     link_data.append({
@@ -233,7 +226,6 @@ link_df = pd.DataFrame(link_data)
 st.write("### Glieder")
 st.dataframe(link_df)
 
-# Fehleranalyse-Kontrolle
 if st.sidebar.checkbox("Fehleranalyse aktivieren"):
     angles, errors = compute_errors(kin, (0, 360, 10))
     

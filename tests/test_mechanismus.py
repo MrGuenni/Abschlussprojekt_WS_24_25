@@ -5,7 +5,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.mechanismus import Mechanism
 from src.mechanismus import create_strandbeest_leg
 
-#TESTMECHANISMUS
 mech = Mechanism()
 j1 = mech.add_joint(0, 0, fixed=True)
 j2 = mech.add_joint(2, 0)

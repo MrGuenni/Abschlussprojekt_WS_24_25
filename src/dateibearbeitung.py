@@ -15,7 +15,6 @@ def save_mechanism(mechanism: Mechanism, filename="mechanismus.json"):
     print(f"Mechanismus gespeichert als {filename}")
 
 def load_mechanism(filename="mechanismus.json"):
-    #Mechanismus aus JSON Datei laden
     with open(filename, "r") as f:
         data = json.load(f)
 

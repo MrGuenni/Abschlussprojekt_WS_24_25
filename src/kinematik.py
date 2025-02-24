@@ -1,7 +1,7 @@
 import sys
 import os
 import numpy as np
-from scipy.optimize import fsolve, least_squares  # <- HIER HINZUGEFÜGT
+from scipy.optimize import fsolve, least_squares
 from src.mechanismus import Mechanism, Joint, Link
 
 
@@ -11,23 +11,19 @@ class Kinematics:
         self.driving_joint = driving_joint
 
     def calculate_positions(self, theta):
-        """ Berechnet die Positionen der Gelenke durch numerische Optimierung """
         fixed_joint = next((joint for joint in self.mechanism.joints if joint.fixed), None)
         if fixed_joint is None:
             raise ValueError("Kein festes Gelenk gefunden!")
 
-        # Antriebsgelenk bewegen (Rotation um das feste Gelenk)
         cos_theta = np.cos(np.radians(theta))
         sin_theta = np.sin(np.radians(theta))
         
         self.driving_joint.x = fixed_joint.x + (self.driving_joint.x - fixed_joint.x) * cos_theta - (self.driving_joint.y - fixed_joint.y) * sin_theta
         self.driving_joint.y = fixed_joint.y + (self.driving_joint.x - fixed_joint.x) * sin_theta + (self.driving_joint.y - fixed_joint.y) * cos_theta
 
-        # Gelenke, die optimiert werden sollen
         variable_joints = [joint for joint in self.mechanism.joints if not joint.fixed]
 
         def error_function(vars):
-            """ Fehlerfunktion: Minimiert die Abweichung von den Soll-Längen der Glieder """
             joint_map = {variable_joints[i]: (vars[2 * i], vars[2 * i + 1]) for i in range(len(variable_joints))}
             eqs = []
 
@@ -45,13 +41,10 @@ class Kinematics:
             
             return eqs
 
-        # Startwerte setzen
         initial_guesses = [coord for joint in variable_joints for coord in (joint.x, joint.y)]
 
-        # Optimierung starten
         result = least_squares(error_function, initial_guesses, xtol=1e-6)
 
-        # Ergebnisse speichern
         for i, joint in enumerate(variable_joints):
             joint.x, joint.y = result.x[2 * i], result.x[2 * i + 1]
 
