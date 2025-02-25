@@ -25,7 +25,7 @@ streamlit run src/visualisierung.py
 
 
 ## **Online-Demo**
-**[Hier klicken, um die App online zu testen](https://abschlussprojektws2425-v7ij3cuvrdqrpv2vmnyy6b.streamlit.app/)**  
+Um die Online-App zu testen, bitte [hier](https://abschlussprojektws2425-v7ij3cuvrdqrpv2vmnyy6b.streamlit.app/) klicken.
 
 ## **Funktionen**
 - Mechanismen erstellen & speichern  
@@ -80,4 +80,4 @@ Die Projektstruktur entspricht in etwa wie folgt.
 MIT License
 
 ##
-genauere Details: siehe Bericht
+genauere Details, siehe [Bericht](Muther_Steininger_Bericht.pdf)
